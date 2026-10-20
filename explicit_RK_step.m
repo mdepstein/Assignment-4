@@ -23,10 +23,11 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct, val)
     num_evals = 1;
     XB = zeros(size(b));
     k = zeros(size(b));
+    orbit_params = define_orbit_params
 
     for i = 1:length(b)
         for j = 1:height(a)
-            k(i) = rate_func_in(t(i) + c(i)*h, h*a(i,j)*k(j));
+            k(i) = rate_func_in(t(i) + c(i)*h, h*a(i,j)*k(j), orbit_params);
             XB(i) = XA + h*b(1,i)*k;
         end
     end
