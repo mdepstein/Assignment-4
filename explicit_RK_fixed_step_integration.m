@@ -25,7 +25,7 @@ function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration .
     
     X_list = zeros(length(X0),N+1);
 
-    X_temp = X0;
+    X_temp = X0
     X_list(:,1) = X_temp;
     
     for i = 2:length(t_list)
