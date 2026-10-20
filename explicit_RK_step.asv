@@ -10,25 +10,31 @@
 %   BT_struct.A: matrix of a_{ij} values
 %   BT_struct.B: vector of b_i values
 %   BT_struct.C: vector of c_i values
+% val: index indicating which Runge-Kutta method is in use
 %OUTPUTS:
 %XB: the approximate value for X(t+h) (the next step)
 %   formula depends on the integration method used
 %num_evals: A count of the number of times that you called
 %   rate_func_in when computing the next step
-function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
-    A = BT_struct.A;
-    B = BT_struct.B;
-    C = BT_struct.C;
+function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct, val)
+    a = BT_struct(val).A;
+    b = BT_struct(val).B;
+    c = BT_struct(val).C;
     num_evals = 1;
-    XB = zeros(size(B));
-
-    for i = 1:length(B)
-        for j = 1:height(A)
-            k = rate_func_in(t(i) + c(i)*h, h*a(i,j)*k(j));
-            XB(i) = XA + h*B(1,i)*k;
+    XB = zeros(size(XA));
+    k = zeros(size(b))';
+    orbit_params = define_orbit_params
+    sum_bk = 0;
+    k(1) = rate_func_in(t,XA);
+    for i = 2:length(b)
+        for j = 1:i-1
+            k(i) = rate_func_in(t + c(i)*h, XA+h*a(i,j)*k(j), orbit_params);
         end
+        k(i) = rate_func_in(t + c(i)*h, XA+h*a(i,j)*k(j), orbit_params);
+
+        sum_bk = b(i)*k(i)
     end
+    XB = XA + h*b(1,i)*k;
+
 
 end
-
-explicit_RK_step(@rate)

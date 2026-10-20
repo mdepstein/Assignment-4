@@ -1,7 +1,8 @@
 function run_method()
 figure()
 orbit_params = define_orbit_params();
-BT_struct = butcher_tableau_struct();
+BT_struct_var = butcher_tableau_struct_var_step();
+BT_struct_explicit = butcher_tableau_struct_explicit();
 x0 = 8;
 y0 = 0;
 dxdt0 = 0;
@@ -18,12 +19,15 @@ plot(V_list(:,1),V_list(:,2),'k');
 h_ref = .3;
 X0 = V_list(1,1:4)
 color = ["blue","red","green","magenta","orange"];
-BT_struct_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
+BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
+BT_struct_explicit_names = ["Forward", "Midpoint", "Kutta"];
+
 for i = 1:3
-[t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(@gravity_rate_func,t_span,X0,h_ref,BT_struct, i)
-plot(t_list, X_listlist, 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
+[t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(@gravity_rate_func,t_span,X0,h_ref,BT_struct_explicit(i));
+size(X_list)
+plot(X_list(1,:), X_list(2,:), 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
 end
-l = legend("Analytical Solution",BT_struct_names(1),BT_struct_names(2),BT_struct_names(3),'FontSize',10 );
+l = legend("Analytical Solution",BT_struct_explicit_names(1),BT_struct_explicit_names(2),BT_struct_explicit_names(3),'FontSize',10 );
 
 
 

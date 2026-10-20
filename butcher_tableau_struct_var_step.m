@@ -1,4 +1,5 @@
-function BT_struct = butcher_tableau_struct()
+function BT_struct = butcher_tableau_struct_var_step()
+
 DormandPrince = struct();
 DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
 DormandPrince.B = [35/384, 0, 500/1113, 125/192,-2187/6784, 11/84, 0;...
