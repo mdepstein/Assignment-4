@@ -9,7 +9,7 @@
 % BT_struct.A: matrix of a_{ij} values
 % BT_struct.B: vector of b_i values
 % BT_struct.C: vector of c_i values
-%val: indication of which BT struct is in use
+%val: indication of which Runga_Katta struct is in use
 %OUTPUTS:
 %t_list: the vector of times, [t_start;t_1;t_2;...;.t_end] that X is approximated at
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step

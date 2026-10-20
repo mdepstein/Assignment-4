@@ -10,7 +10,7 @@
 %   BT_struct.A: matrix of a_{ij} values
 %   BT_struct.B: vector of b_i values
 %   BT_struct.C: vector of c_i values
-% val: index indicating which BT method is in use
+% val: index indicating which Runge-Kutta method is in use
 %OUTPUTS:
 %XB: the approximate value for X(t+h) (the next step)
 %   formula depends on the integration method used
