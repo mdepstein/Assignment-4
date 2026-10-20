@@ -16,7 +16,7 @@ axis([-20,20,-20,20])
 hold on
 plot(0,0,'ro','markerfacecolor','r','markersize',5);
 plot(V_list(:,1),V_list(:,2),'k');
-h_ref = .3;
+h_ref = .1;
 X0 = V_list(1,1:4)
 color = ["blue","red","green","magenta","orange"];
 BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
@@ -27,7 +27,7 @@ for i = 1:3
 size(X_list)
 plot(X_list(1,:), X_list(2,:), 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
 end
-l = legend("Analytical Solution",BT_struct_explicit_names(1),BT_struct_explicit_names(2),BT_struct_explicit_names(3),'FontSize',10 );
+l = legend("Sun", "Analytical Solution",BT_struct_explicit_names(1),BT_struct_explicit_names(2),BT_struct_explicit_names(3),'FontSize',10 );
 
 
 
