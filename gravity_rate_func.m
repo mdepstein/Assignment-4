@@ -21,5 +21,5 @@ ms = orbit_params.m_sun;
 
 d2xdt2_p = -G*ms*x/(x^2+y^2)^(3/2);
 d2ydt2_p = -G*ms*y/(x^2+y^2)^(3/2);
-dVdt = [dxdt_p; dydt_p; d2xdt2_p; d2ydt2_p]
+dVdt = [dxdt_p; dydt_p; d2xdt2_p; d2ydt2_p];
 end

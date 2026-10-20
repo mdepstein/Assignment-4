@@ -16,7 +16,7 @@ axis([-20,20,-20,20])
 hold on
 plot(0,0,'ro','markerfacecolor','r','markersize',5);
 plot(V_list(:,1),V_list(:,2),'k');
-h_ref = .1;
+h_ref = .01;
 X0 = V_list(1,1:4)
 color = ["blue","red","green","magenta","orange"];
 BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
