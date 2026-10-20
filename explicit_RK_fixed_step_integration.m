@@ -9,13 +9,14 @@
 % BT_struct.A: matrix of a_{ij} values
 % BT_struct.B: vector of b_i values
 % BT_struct.C: vector of c_i values
+%val: indication of which BT struct is in use
 %OUTPUTS:
 %t_list: the vector of times, [t_start;t_1;t_2;...;.t_end] that X is approximated at
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
 function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration ...
-(rate_func_in,tspan,X0,h_ref,BT_struct)
+(rate_func_in,tspan,X0,h_ref,BT_struct, val)
     
     N = ceil((tspan(2)-tspan(1))/h_ref);
     %h_avg = (tspan(2)-tspan(1))/N;
@@ -29,7 +30,7 @@ function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration .
     
     for i = 2:length(t_list)
         t = t_list(i-1);
-        [XB, num_evals] = explicit_RK_step(rate_func_in,t,X_temp,h,BT_struct)
+        [XB, num_evals] = explicit_RK_step(rate_func_in,t,X_temp,h,BT_struct, val)
         X_list(:,i) = X_temp;
         num_evals = num_evals_temp+num_evals;
     end

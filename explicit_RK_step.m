@@ -10,15 +10,16 @@
 %   BT_struct.A: matrix of a_{ij} values
 %   BT_struct.B: vector of b_i values
 %   BT_struct.C: vector of c_i values
+% val: index indicating which BT method is in use
 %OUTPUTS:
 %XB: the approximate value for X(t+h) (the next step)
 %   formula depends on the integration method used
 %num_evals: A count of the number of times that you called
 %   rate_func_in when computing the next step
-function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
-    a = BT_struct.A;
-    b = BT_struct.B;
-    c = BT_struct.C;
+function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct, val)
+    a = BT_struct(val).A;
+    b = BT_struct(val).B;
+    c = BT_struct(val).C;
     num_evals = 1;
     XB = zeros(size(b));
     k = zeros(size(b));
