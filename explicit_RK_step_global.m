@@ -20,17 +20,24 @@ function [XB, num_evals] = explicit_RK_step_global(rate_func_in,t,XA,h,BT_struct
     a = BT_struct.A;
     b = BT_struct.B;
     c = BT_struct.C;
-    num_evals = 1;
+    num_evals = 0;
+    XA = XA(:);
     XB = zeros(size(XA));
     k = zeros(length(c),length(XA));
     orbit_params = define_orbit_params();
-    k(1,:) = rate_func_in(t,XA,orbit_params)';
-    for i = 2:length(b)
+
+    % k(1,:) = rate_func_in(t,XA,orbit_params)';
+    for i = 1:length(b)
         j = i-1;
-        k(i,:) =  rate_func_in(t + c(i)*h, XA+h*a(i,1:j)*k(1:j)', orbit_params);
+        if i ==1
+            X_stage = XA;
+        else
+            X_stage = XA+h*a(i,1:j)*k(1:j)';
+        end
+        k(i,:) =  rate_func_in(t + c(i)*h,X_stage, orbit_params)';
         num_evals = num_evals + 1;
     end
-    XB = XA + h*k'*b(1,:)';
+    XB = XA + h*k'*b(:);
 
 
 end

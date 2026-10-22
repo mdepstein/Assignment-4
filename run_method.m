@@ -14,7 +14,7 @@ V_list = compute_planetary_motion(t_range,V0,orbit_params);
 h_ref = .01;
 
 axis equal; axis square;
-axis([-20,20,-20,20])
+axis([-10,15,-10,15])
 hold on
 
 plot(0,0,'ro','markerfacecolor','r','markersize',5);
@@ -43,10 +43,10 @@ l = legend("Sun", "Analytical Solution", ...
     'FontSize', 10, 'Interpreter', 'Latex');
 
 set(gca,'TickLabelInterpreter','latex');
-title('Planetary Orbit Comparision ($h_{ref} = 0.01$)', ...
+title('Runge-Kutta Example Integration Plot', ...
 'Interpreter', 'latex', 'FontSize', 15);
-xlabel('x position (-)', 'Interpreter', 'latex');
-ylabel('y position (-)', 'Interpreter', 'latex');
+xlabel('x position (-)', 'Interpreter', 'latex','FontSize',15);
+ylabel('y position (-)', 'Interpreter', 'latex', 'FontSize',15);
 
 
 end

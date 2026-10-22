@@ -10,10 +10,10 @@ function global_truncation
     t_span = [0,30];
     t_range = linspace(t_span(1),t_span(2),100);
     V_list = compute_planetary_motion(t_range,V0,orbit_params);
-    h_list = logspace(-3, -1, 20);
+    h_list = logspace(-3, -2, 20);
     global_truncation = zeros(3, length(h_list));
 
-    X0 = V_list(1,1:4);
+    % X0 = V_list(1,1:4);
     X0=V0
     color = ["blue","red","green"];
     BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
@@ -27,8 +27,11 @@ function global_truncation
                 explicit_RK_fixed_step_integration_global( ...
                 @gravity_rate_func,t_span,X0,h_ref, ...
                 BT_struct_explicit(i));
-            V_actual = compute_planetary_motion(t_list,V0,orbit_params);
-            global_truncation(i, j) = norm(X_list(:, end) - V_actual(end, :)');
+            V_actual = compute_planetary_motion(t_list(end),V0,orbit_params);
+
+            % size(X_list)
+            % size(V_actual)
+            global_truncation(i, j) = norm(X_list(:, end) - V_actual, 2);
         end
     end
 
@@ -45,10 +48,11 @@ function global_truncation
     end
     p
 
+
     l = legend("Forward Euler", "Forward Euler Fit Line", ...
     "Midpoint Method", "Midpoint Method Fit Line", "Runga Kutta", ...
     "Runga Kutta Fit Line", 'FontSize', 10, ...
-    'Interpreter', 'Latex');
+    'Interpreter', 'Latex', 'Location', 'best');
 
     set(gca,'TickLabelInterpreter','latex');
     title('Global Truncation Error vs. Step Size', ...

@@ -31,7 +31,7 @@ X_list(:,1) = X_temp;
 for i = 2:length(t_list)
     t = t_list(i-1);
     [X_temp, num_evals_temp] = explicit_RK_step_global(rate_func_in,t,X_temp,h_avg,BT_struct);
-    size(X_temp)
+    size(X_temp);
     X_list(:,i) = X_temp;
     num_evals = num_evals_temp+num_evals;
 end
