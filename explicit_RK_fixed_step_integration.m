@@ -16,7 +16,7 @@
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
 function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration ...
-(rate_func_in,tspan,X0,h_ref,BT_struct)
+(rate_func_in,tspan,X0,h_ref,BT_struct,explicit_RK_step_method)
     
     N = ceil((tspan(2)-tspan(1))/h_ref);
     h_avg = (tspan(2)-tspan(1))/N;
@@ -30,7 +30,7 @@ function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration .
     
     for i = 2:length(t_list)
         t = t_list(i-1);
-        [X_temp, num_evals_temp] = explicit_RK_step(rate_func_in,t,X_temp,h_avg,BT_struct);
+        [X_temp, num_evals_temp] = explicit_RK_step_method(rate_func_in,t,X_temp,h_avg,BT_struct);
         X_list(:,i) = X_temp;
         num_evals = num_evals_temp+num_evals;
     end
