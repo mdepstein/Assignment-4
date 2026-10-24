@@ -16,7 +16,7 @@
 %   formula depends on the integration method used
 %num_evals: A count of the number of times that you called
 %   rate_func_in when computing the next step
-function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
+function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct, orbit_params)
     a = BT_struct.A;
     b = BT_struct.B;
     c = BT_struct.C;
@@ -30,7 +30,9 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
         k(i,:) =  rate_func_in(t + c(i)*h, XA+h*a(i,1:j)*k(1:j)', orbit_params);
         num_evals = num_evals + 1;
     end
-    XB = XA + h*b*k;
+    k
+    b
+    XB = XA + h*b*k
 
 
 end

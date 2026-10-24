@@ -3,55 +3,58 @@ function run_local_error()
     set(groot, 'defaultTextInterpreter', 'latex');
     set(groot, 'defaultAxesTickLabelInterpreter', 'latex');
     set(groot, 'defaultLegendInterpreter', 'latex');
-
+    orbit_params = define_orbit_params();
+    x0 = 8;
+    y0 = 0;
+    dxdt0 = 0;
+    dydt0 = 1.5;
+    V0 = [x0;y0;dxdt0;dydt0];
+    
+    BT_struct_var = butcher_tableau_struct_var_step();
+    BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
+    index= 3;
+    BT_struct = BT_struct_var(index);
     t = 0.492;
-    compute_planetary_motion(t_list,V0,orbit_params)    
-    hs = logspace(-4.5,-1,100);
-    local_errors_e = zeros(size(hs));
-    local_errors_m = zeros(size(hs));
-    local_errors_b = zeros(size(hs));
-    local_errors_i = zeros(size(hs));
+    VA = compute_planetary_motion(t,V0,orbit_params)';
 
-    diffs_e = zeros(size(hs));
-    diffs_m = zeros(size(hs));
+    hs = logspace(-4.5,2,100);
+    local_errors_1 = zeros(size(hs));
+    local_errors_2 = zeros(size(hs));
+    approx_sol_diff = zeros(size(hs));
+    solution_diff = zeros(size(hs));
     
     for n = 1:length(hs)
         h = hs(n);
-        [l_ee, diffe] = local_error(@rate_func01, @solution01, XA, t, h, "euler");
-        [l_em, diffm] = local_error(@rate_func01, @solution01, XA, t, h, "midpoint");
-        local_errors_e(n) = l_ee;
-        local_errors_m(n) = l_em;
-        diffs_e(n) = diffe;
-        diffs_m(n) = diffm;
-
-        [l_eb, diffb] = local_error(@rate_func01, @solution01, XA, t, h, "backward_euler");
-        [l_ei, diffi] = local_error(@rate_func01, @solution01, XA, t, h, "implicit_midpoint");
-        local_errors_b(n) = l_eb;
-        local_errors_i(n) = l_ei;
+        [error1, error2, abs_diff, diff] = local_error_calc(@gravity_rate_func, @compute_planetary_motion, VA, t, h, BT_struct, orbit_params);
+        local_errors_1(n) = error1;
+        local_errors_2(n) = error2;
+        approx_sol_diff(n) = abs_diff;
+        solution_diff(n) = diff;
+        % [l_ee, diffe] = local_error(@rate_func01, @solution01, XA, t, h, "euler");
+        % [l_em, diffm] = local_error(@rate_func01, @solution01, XA, t, h, "midpoint");
+        % local_errors_e(n) = l_ee;
+        % local_errors_m(n) = l_em;
+        % diffs_e(n) = diffe;
+        % diffs_m(n) = diffm;
+        % 
+        % [l_eb, diffb] = local_error(@rate_func01, @solution01, XA, t, h, "backward_euler");
+        % [l_ei, diffi] = local_error(@rate_func01, @solution01, XA, t, h, "implicit_midpoint");
+        % local_errors_b(n) = l_eb;
+        % local_errors_i(n) = l_ei;
         
     end
     
     figure();
-    loglog(hs, local_errors_e, "b.", MarkerSize=10); hold on
-    loglog(hs, diffs_e, "c*", MarkerSize=10);
-    coeffs_e = polyfit(log(hs), log(local_errors_e), 1);
-    localfit_e = exp(polyval(coeffs_e, log(hs)));
-    loglog(hs, localfit_e, "r", LineWidth=1);
+    loglog(hs, local_errors_1, "b.", MarkerSize=13); hold on
+    loglog(hs, local_errors_2, "c.", MarkerSize=10);
 
-    loglog(hs, local_errors_m, "k.", MarkerSize=10); hold on
-    loglog(hs, diffs_m, "m.", MarkerSize=10);
-    coeffs_m = polyfit(log(hs), log(local_errors_m), 1);
-    localfit_m = exp(polyval(coeffs_m, log(hs)));
-    loglog(hs, localfit_m, "g", LineWidth=1);
+    loglog(hs, approx_sol_diff, "k.", MarkerSize=10); hold on
+    loglog(hs, solution_diff, "m.", MarkerSize=10);
 
-    % loglog(hs, local_errors_b, "m.", MarkerSize=10); hold on
-    % 
-    % loglog(hs, local_errors_i, "c.", MarkerSize=10); hold on
-
-    title("Local Truncation Error for Explicit Methods",'FontSize',13);
+    title("Local Truncation Error for Embedded RK Method",'FontSize',13);
     xlabel("$h_{avg} (-)$ ",'FontSize',13);
     ylabel("Local Truncation error $(-)$",'FontSize',13)
-    legend("Euler method error", "Euler differences", "Euler fit line", "Midpoint method error", "Midpoint differences", "Midpoint fit line", 'FontSize',11, "Location", "southeast")
+    legend("XB1 Local Error", "XB2 Local Error", "|XB1-XB2|", "Ground Truth", 'FontSize',11, "Location", "southeast")
 
     myfig = gcf();
     exportgraphics(myfig , 'local_err_explicit_01.png', 'Resolution', 600);
