@@ -1,5 +1,5 @@
 function run_local_error()
-    close all;
+    %close all;
     set(groot, 'defaultTextInterpreter', 'latex');
     set(groot, 'defaultAxesTickLabelInterpreter', 'latex');
     set(groot, 'defaultLegendInterpreter', 'latex');
@@ -12,12 +12,12 @@ function run_local_error()
     
     BT_struct_var = butcher_tableau_struct_var_step();
     BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
-    index= 3;
-    BT_struct = BT_struct_var(index);
-    t = 0.492;
+    index= 4;
+    BT_struct = BT_struct_var(index)
+    t = 7;
     VA = compute_planetary_motion(t,V0,orbit_params)';
 
-    hs = logspace(-4.5,2,100);
+    hs = logspace(-4.5,.5,100);
     local_errors_1 = zeros(size(hs));
     local_errors_2 = zeros(size(hs));
     approx_sol_diff = zeros(size(hs));
@@ -43,7 +43,7 @@ function run_local_error()
         % local_errors_i(n) = l_ei;
         
     end
-    
+
     figure();
     loglog(hs, local_errors_1, "b.", MarkerSize=13); hold on
     loglog(hs, local_errors_2, "c.", MarkerSize=10);
@@ -52,9 +52,20 @@ function run_local_error()
     loglog(hs, solution_diff, "m.", MarkerSize=10);
 
     title("Local Truncation Error for Embedded RK Method",'FontSize',13);
+    subtitle(BT_struct_var_names(index));
     xlabel("$h_{avg} (-)$ ",'FontSize',13);
     ylabel("Local Truncation error $(-)$",'FontSize',13)
     legend("XB1 Local Error", "XB2 Local Error", "|XB1-XB2|", "Ground Truth", 'FontSize',11, "Location", "southeast")
+    
+    p_XB1 = polyfit(log(hs), log(local_errors_1), 1)
+    p_XB2 = polyfit(log(hs), log(local_errors_2), 1)
+    p_diff = polyfit(log(hs), log(approx_sol_diff), 1)
 
     myfig = gcf();
     exportgraphics(myfig , 'local_err_explicit_01.png', 'Resolution', 600);
+    
+
+
+
+
+end
