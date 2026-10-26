@@ -12,11 +12,12 @@ function run_local_error()
     
     BT_struct_var = butcher_tableau_struct_var_step();
     BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
-    index= 4;
-    BT_struct = BT_struct_var(index)
+    index= 2;
+    BT_struct = BT_struct_var(index);
     t = 7;
-    VA = compute_planetary_motion(t,V0,orbit_params)';
-
+    VA = compute_planetary_motion(t,V0,orbit_params);
+    VA =
+    %XA = solution01(t,0,orbit_params); %0 is just an arbituary value not needed for calculating solution
     hs = logspace(-4.5,.5,100);
     local_errors_1 = zeros(size(hs));
     local_errors_2 = zeros(size(hs));
@@ -26,21 +27,12 @@ function run_local_error()
     for n = 1:length(hs)
         h = hs(n);
         [error1, error2, abs_diff, diff] = local_error_calc(@gravity_rate_func, @compute_planetary_motion, VA, t, h, BT_struct, orbit_params);
+        %[error1, error2, abs_diff, diff] = local_error_calc(@rate_func01, @solution01, XA, t, h, BT_struct, orbit_params);
         local_errors_1(n) = error1;
         local_errors_2(n) = error2;
         approx_sol_diff(n) = abs_diff;
         solution_diff(n) = diff;
-        % [l_ee, diffe] = local_error(@rate_func01, @solution01, XA, t, h, "euler");
-        % [l_em, diffm] = local_error(@rate_func01, @solution01, XA, t, h, "midpoint");
-        % local_errors_e(n) = l_ee;
-        % local_errors_m(n) = l_em;
-        % diffs_e(n) = diffe;
-        % diffs_m(n) = diffm;
-        % 
-        % [l_eb, diffb] = local_error(@rate_func01, @solution01, XA, t, h, "backward_euler");
-        % [l_ei, diffi] = local_error(@rate_func01, @solution01, XA, t, h, "implicit_midpoint");
-        % local_errors_b(n) = l_eb;
-        % local_errors_i(n) = l_ei;
+
         
     end
 
