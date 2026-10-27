@@ -8,7 +8,8 @@ function run_explicit_variable_RK_step
     h_ref = 0.3;
     tspan = [0 20];
     p = 4;
-    error_desired = logspace(-14, -1, 50);
+    orbit_params = define_orbit_params();
+    error_desired_list = logspace(-14, -1, 50);
     DormandPrince = struct();
     DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
     DormandPrince.B = [35/384, 0, 500/1113, 125/192,-2187/6784, 11/84, 0;...
@@ -21,26 +22,35 @@ function run_explicit_variable_RK_step
         9017/3168,-355/33, 46732/5247, 49/176,-5103/18656, 0,0;...
         35/384, 0, 500/1113, 125/192,-2187/6784, 11/84,0];
 
-    h_avg = zeros(size(error_desired));
-    num_evals_adaptive = zeros(size(error_desired));
-    step_fail_rate_adaptive = zeros(size(error_desired));
-    global_truncation_adaptive = zeros(size(error_desired));
-    num_evals_fixed = zeros(size(error_desired));
-    global_truncation_fixed = zeros(size(error_desired));
+    h_avg = zeros(size(error_desired_list));
+    h_list = logspace(0.1, 0.75, length(error_desired_list));
+    num_evals_adaptive = zeros(size(error_desired_list));
+    step_fail_rate_adaptive = zeros(size(error_desired_list));
+    global_truncation_adaptive = zeros(size(error_desired_list));
+    num_evals_fixed = zeros(size(error_desired_list));
+    global_truncation_fixed = zeros(size(error_desired_list));
 
-    % iterate through desired error for adaptive and fixed step size integrator
-    for i = 1:length(error_desired)
+    % iterate through desired error for adaptive step size integrator
+    for i = 1:length(error_desired_list)
         [~,X_list_adaptive,h_avg(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
-            explicit_RK_variable_step_integration(@rate_func_01,tspan,X0, ...
-            h_ref,DormandPrince,p,error_desired(i));
+            explicit_RK_variable_step_integration(@rate_func01,tspan,X0, ...
+            h_ref,DormandPrince,p,error_desired_list(i));
         global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:)' - solution01(tspan(end)));
 
-        [~,X_list_fixed,~, num_evals_fixed(i),~] = ...
-            explicit_RK_variable_step_integration(@rate_func_01,tspan,X0, ...
-            h_ref,DormandPrince,p,error_desired(i));
-        global_truncation_fixed(i) =  norm(X_list_fixed(end,:)' - solution01(tspan(end)));
+        % [~,X_list_fixed,~, num_evals_fixed(i),~] = ...
+        %     explicit_RK_variable_step_integration(@rate_func01,tspan,X0, ...
+        %     h_ref,DormandPrince,p,error_desired(i));
+        % global_truncation_fixed(i) =  norm(X_list_fixed(end,:)' - solution01(tspan(end)));
     end
+    
+    fprintf('loop 1 complete \n')
 
+    % iterate through step sizes for fixed step size integrator
+    for j = 1:length(h_list)
+        [~,X_list_fixed,~, num_evals_fixed(j)] = explicit_RK_fixed_step_integration ...
+            (@rate_func01,tspan,X0,h_list(j),DormandPrince, @explicit_RK_step, orbit_params);
+        global_truncation_fixed(j) =  norm(X_list_fixed(end,:)' - solution01(tspan(end)))
+    end
 
     % On the same axes, plot the global truncation error as a function of the 
     % average step size for both the fixed and % adaptive step size 
@@ -48,11 +58,11 @@ function run_explicit_variable_RK_step
     
     figure();
     % adaptive step size
-    loglog(h_avg, global_truncation_adaptive, 'r-');
+    loglog(h_avg, global_truncation_adaptive, 'r--');
     hold on;
     
     % fixed step size
-    loglog(h_avg, global_truncation_fixed, 'b-');
+    loglog(h_list, global_truncation_fixed, 'b-');
 
     legend("Adaptive Step Size", "Fixed Step Size", ...
         'FontSize', 10, 'Interpreter', 'Latex');
@@ -69,7 +79,7 @@ function run_explicit_variable_RK_step
     
     figure();
     % adaptive step size
-    loglog(num_evals_adaptive, global_truncation_adaptive, 'r-');
+    loglog(num_evals_adaptive, global_truncation_adaptive, 'r--');
     hold on;
 
     % fixed step size
@@ -81,17 +91,17 @@ function run_explicit_variable_RK_step
     title(['Average Step Size vs. Global Truncation Error Scaling' ...
         '(Adapative Step Sizes)'], 'Interpreter', 'latex', 'FontSize', 15);
     ylabel('Global Truncation Error (-)', 'Interpreter', 'latex','FontSize',15);
-    xlabel('Average Step Size $h$ (-)', 'Interpreter', 'latex', 'FontSize',15);
+    xlabel('Number of Function Evaluations (-)', 'Interpreter', 'latex', 'FontSize',15);
 
     % Plot the failure rate as a function of the average step size, using 
     % a log scale for the horizontal axis.
     figure();
-    loglog(h_avg, step_fail_rate_adaptive, 'r-');
+    loglog(h_avg, step_fail_rate_adaptive, 'r--');
 
     set(gca,'TickLabelInterpreter','latex');
     title(['Average Step Size vs. Failure Rate' ...
         '(Adapative Step Sizes)'], 'Interpreter', 'latex', 'FontSize', 15);
-    ylabel('Global Truncation Error (-)', 'Interpreter', 'latex','FontSize',15);
+    ylabel('Failure Rate (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Average Step Size $h$ (-)', 'Interpreter', 'latex', 'FontSize',15);
 
 end

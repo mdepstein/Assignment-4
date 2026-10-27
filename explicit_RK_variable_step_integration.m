@@ -25,24 +25,28 @@ function [t_list,X_list,h_avg, num_evals, step_fail_rate] = explicit_RK_variable
     X_list = zeros(size(t_list));
     h_list = zeros(size(t_list));
     failure_num = 0;
+    num_attempts = 0;
     
     for i = 2:(length(t_list)-1)
         t = t_list(i);
         while t < tf
+            num_attempts = num_attempts+1;
            [XB, num_evals, h_next, redo] = explicit_RK_variable_step ...
-               (rate_func_in,t,X0,h,BT_struct,p,error_desired) 
+               (rate_func_in,t,X0,h,BT_struct,p,error_desired);
            if redo == false
-               X = XA;
+               X = XB;
+               t_next = t+h;
                t_list(i+1) = t_next;
                X_list(i+1) = X;
                t = t_next;
            else
-               failure_num = failure + 1;
+               failure_num = failure_num + 1;
            end
            h = h_next;
            h_list(i) = h;
         end
     end
-    h_avg = mean(h_list);
-    step_fail_rate = failure_num/num_evals;
+    % h_avg = mean(h_list);
+    h_avg = mean(diff(t_list(1:num_evals)));
+    step_fail_rate = failure_num/num_attempts;
 end
