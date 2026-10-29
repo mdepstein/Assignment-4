@@ -23,18 +23,20 @@
 %redo: False if the estimated error was less than error_desired
 %True if the estimated error was larger than error_desired
 function [XB, num_evals, h_next, redo] = explicit_RK_variable_step...
-    (rate_func_in,t,XA,h,BT_struct,p,error_desired) 
+    (rate_func_in,t,XA,h,BT_struct,p,error_desired,growth_limit) 
        
-    alpha = 2;
     redo = true;
-    [XB1,XB2,num_evals]=RK_step_embedded(rate_func_in,t,XA,h,BT_struct);
-    
-    error = abs(XB1-XB2);
-    if error_desired > error
+    [XB1,XB2,num_evals]=RK_step_embedded ...
+        (rate_func_in,t,XA,h,BT_struct);
+
+    error = norm(XB1-XB2);
+    if error > error_desired
+        h_next = growth_limit*h;
+    else
+        h_next = min(0.9*(error_desired/error)^(1/p), growth_limit)*h;
         redo = false;
     end
     
-    h_next = min(0.9*(error_desired/error)^(1/p), alpha)*h;
-    XB = XB1; % changes with method
+    XB = XB1;
     
 end

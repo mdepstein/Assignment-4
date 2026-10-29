@@ -3,13 +3,21 @@
 % record the global truncation error, the average step size, the number 
 % of function evaluations, and the step failure rate.
 function run_explicit_variable_RK_step
-    XA = 4;
-    X0 = XA;
+    x0 = 8;
+    y0 = 0;
+    dxdt0 = 0;
+    dydt0 = 1.5;
+    V0 = [x0;y0;dxdt0;dydt0];
     h_ref = 0.3;
     tspan = [0 20];
-    p = 4;
+    p = 5;
+    growth_limit = 2;
     orbit_params = define_orbit_params();
-    error_desired_list = logspace(-14, -1, 50);
+    rate_func = @(tin,Vin) gravity_rate_func(tin, Vin, orbit_params);
+    sol_func = @(tin) compute_planetary_motion(tin, V0, orbit_params);
+
+    
+    error_desired_list = logspace(-5, -1, 50);
     DormandPrince = struct();
     DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
     DormandPrince.B = [35/384, 0, 500/1113, 125/192,-2187/6784, 11/84, 0;...
@@ -23,7 +31,7 @@ function run_explicit_variable_RK_step
         35/384, 0, 500/1113, 125/192,-2187/6784, 11/84,0];
 
     h_avg = zeros(size(error_desired_list));
-    h_list = logspace(0.1, 0.75, length(error_desired_list));
+    h_list = logspace(-2, 0, length(error_desired_list));
     num_evals_adaptive = zeros(size(error_desired_list));
     step_fail_rate_adaptive = zeros(size(error_desired_list));
     global_truncation_adaptive = zeros(size(error_desired_list));
@@ -32,24 +40,20 @@ function run_explicit_variable_RK_step
 
     % iterate through desired error for adaptive step size integrator
     for i = 1:length(error_desired_list)
-        [~,X_list_adaptive,h_avg(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
-            explicit_RK_variable_step_integration(@rate_func01,tspan,X0, ...
-            h_ref,DormandPrince,p,error_desired_list(i));
-        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:)' - solution01(tspan(end)));
 
-        % [~,X_list_fixed,~, num_evals_fixed(i),~] = ...
-        %     explicit_RK_variable_step_integration(@rate_func01,tspan,X0, ...
-        %     h_ref,DormandPrince,p,error_desired(i));
-        % global_truncation_fixed(i) =  norm(X_list_fixed(end,:)' - solution01(tspan(end)));
+        [~,X_list_adaptive,h_avg(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
+            explicit_RK_variable_step_integration(rate_func,tspan,V0, ...
+            h_ref,DormandPrince,p,error_desired_list(i),growth_limit);
+        V_actual = sol_func(tspan(end));
+        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:) - V_actual);
     end
     
-    fprintf('loop 1 complete \n')
-
     % iterate through step sizes for fixed step size integrator
     for j = 1:length(h_list)
         [~,X_list_fixed,~, num_evals_fixed(j)] = explicit_RK_fixed_step_integration ...
-            (@rate_func01,tspan,X0,h_list(j),DormandPrince, @explicit_RK_step, orbit_params);
-        global_truncation_fixed(j) =  norm(X_list_fixed(end,:)' - solution01(tspan(end)))
+            (@gravity_rate_func,tspan,V0,h_list(j),DormandPrince, @explicit_RK_step, orbit_params);
+        V_actual = sol_func(tspan(end));
+        global_truncation_fixed(j) =  norm(X_list_fixed(end,:) - V_actual);
     end
 
     % On the same axes, plot the global truncation error as a function of the 

@@ -20,7 +20,7 @@ function[XB1,XB2,num_evals]=RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
     b1 = BT_struct.B(1,:);
     b2 = BT_struct.B(2,:);
     c = BT_struct.C;
-    num_evals = 1;
+    num_evals = 0;
     XB1 = zeros(size(XA));
     XB2 = zeros(size(XA));
     
