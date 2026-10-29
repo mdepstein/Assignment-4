@@ -14,7 +14,7 @@ V0 = [x0;y0;dxdt0;dydt0];
 t_span = [0,50];
 t_range = linspace(t_span(1),t_span(2),100);
 V_list = compute_planetary_motion(t_range,V0,orbit_params);
-h_ref = .00001;
+h_ref = .05;
 
 %plot(0,0,'ro','markerfacecolor','r','markersize',5);
 
@@ -35,7 +35,6 @@ for i = 1:3
     nexttile(1)
     [t_list,X_list,h_avg, num_evals] = ...
         explicit_RK_fixed_step_integration(wrap_gravity_rate_func,t_span,X0,h_ref, BT_struct_explicit(i), @explicit_RK_step);
-    
     plot(t_list, X_list(1,:), 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
     xlabel("Time (-)",'FontSize',15)
         ylabel("$x(t) (-)$",'FontSize',15)
