@@ -32,14 +32,15 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
         k(:,i) =  rate_func_in(t + c(i)*h, XA+h*k(:,1:j)*(a(i,1:j)'));
         num_evals = num_evals + 1;
     end
-    XB = XA+(h*b*k')';
-    % 
-    % hbk = h*b(1,:)*k;
-    % 
-    % if size(XB) ~= size(hbk)
-    %     hbk = hbk';
-    % end
-    % XB = XA + hbk;
+    
+
+    hbk = h*b(1,:)*k';
+
+    if size(XA) ~= size(hbk)
+        hbk = hbk';
+    end
+    
+    XB = XA + hbk;
 
 
 end
