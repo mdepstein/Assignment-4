@@ -24,14 +24,13 @@ function [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration .
     t_list = linspace(tspan(1),tspan(2), N+1);
     
     X_list = zeros(length(X0),N+1);
+    X_list(:,1) = X0;
 
-    X_temp = X0;
-    X_list(:,1) = X_temp;
-    
-    for i = 2:length(t_list)
-        t = t_list(i-1);
+    for i = 1:N
+        t = t_list(i);
+        X_temp = X_list(:,i);
         [X_temp, num_evals_temp] = explicit_RK_step(rate_func_in,t,X_temp,h_avg,BT_struct);
-        X_list(:,i) = X_temp;
+        X_list(:,i+1) = X_temp;
         num_evals = num_evals_temp+num_evals;
     end
 end
