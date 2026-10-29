@@ -121,6 +121,7 @@ function run_explicit_variable_RK_step
     t_list2 = linspace(tspan(1),tspan(end),1001);
 
     V_actual = sol_func(t_list2);
+   
 
     figure();
     for m = 1:4
@@ -128,6 +129,34 @@ function run_explicit_variable_RK_step
         hold on
         plot(t_list2,V_actual(:,m),'k','linewidth',2);
         plot(t_list,X_list_adaptive(:,m),'ro','markerfacecolor','r','markersize',3);
+
     end
+
+
+    % For a single desired error threshold, plot the position and velocity 
+    % as a function of time (position vs. time and velocity vs. time 
+    % should be on separate axes). Do this with both lines and dots:
+    
+    error_desired = error_desired_list(15);
+    error_desired_str = int2str(error_desired);
+    
+    figure();
+    subplot(2,1,1);
+    plot(t_list3, position, 'r-.');
+
+    set(gca,'TickLabelInterpreter','latex');
+    title(['Position as a Function of Time, error threshold = ' error_desired_str], ...
+        'Interpreter', 'latex', 'FontSize', 15);
+    ylabel('Position (-)', 'Interpreter', 'latex','FontSize',15);
+    xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
+
+    subplot(2,1,2);
+    plot(t_list3, velocity, 'b-.');
+
+    set(gca,'TickLabelInterpreter','latex');
+    title(['Velocity as a Function of Time, error threshold = ' error_desired_str], ...
+        'Interpreter', 'latex', 'FontSize', 15);
+    ylabel('Velocity (-)', 'Interpreter', 'latex','FontSize',15);
+    xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
 
 end
