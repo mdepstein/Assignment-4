@@ -7,15 +7,16 @@ function run_explicit_variable_RK_step
     dxdt0 = 0; dydt0 = 1.5;
     V0 = [x0;y0;dxdt0;dydt0];
 
-    h_ref = 1e-5;
-    tspan = [0 20];
+    h_ref = 0.05;
+    t_span = [0 50];
     p = 5;
     growth_limit = 2;
     orbit_params = define_orbit_params();
+    t_range = linspace(t_span(1),t_span(2),100);
+    V_list = compute_planetary_motion(t_range,V0,orbit_params);
 
     rate_func = @(tin,Vin) gravity_rate_func(tin, Vin, orbit_params);
     sol_func = @(tin) compute_planetary_motion(tin, V0, orbit_params);   
-    
     error_desired_list = logspace(-5, -1, 50);
 
     DormandPrince = struct();
@@ -40,23 +41,23 @@ function run_explicit_variable_RK_step
 
 
 
-
-
     % iterate through desired error for adaptive step size integrator
     for i = 1:length(error_desired_list)
 
         [~,X_list_adaptive,h_avg(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
-            explicit_RK_variable_step_integration(rate_func,tspan,V0, ...
+            explicit_RK_variable_step_integration(rate_func,t_span,V0, ...
             h_ref,DormandPrince,p,error_desired_list(i),growth_limit);
-        V_actual = sol_func(tspan(end));
-        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:)' - V_actual);
+        V_actual = sol_func(t_span(end));
+        V_actual = V_actual(:);
+        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:) - V_actual);
     end
     
     % iterate through step sizes for fixed step size integrator
     for j = 1:length(h_list)
         [~,X_list_fixed,~, num_evals_fixed(j)] = explicit_RK_fixed_step_integration ...
-            (rate_func,tspan,V0,h_list(j),DormandPrince, @explicit_RK_step);
-        V_actual = sol_func(tspan(end));
+            (rate_func,t_span,V0,h_list(j),DormandPrince, @explicit_RK_step);
+        V_actual = sol_func(t_span(end));
+        V_actual = V_actual(:);
         global_truncation_fixed(j) =  norm(X_list_fixed(end,:) - V_actual);
     end
 
@@ -104,33 +105,32 @@ function run_explicit_variable_RK_step
     % Plot the failure rate as a function of the average step size, using
     % a log scale for the horizontal axis.
     figure();
-    loglog(h_avg, step_fail_rate_adaptive, 'r--');
+    semilogx(h_avg, step_fail_rate_adaptive, 'ro-');
 
     set(gca,'TickLabelInterpreter','latex');
-    title(['Average Step Size vs. Failure Rate ' ...
+    title(['Step Failure Rate vs. Average Step Size ' ...
         '(Adapative Step Sizes)'], 'Interpreter', 'latex', 'FontSize', 15);
-    ylabel('Failure Rate (-)', 'Interpreter', 'latex','FontSize',15);
+    ylabel('Step Failure Rate (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Average Step Size $h$ (-)', 'Interpreter', 'latex', 'FontSize',15);
 
     
-    error_temp = 1e-12;
-    [t_list,X_list_adaptive,~, ~, ~] = ...
-        explicit_RK_variable_step_integration(rate_func,tspan,V0, ...
-        h_ref,DormandPrince,p,error_temp,growth_limit);
-
-    t_list2 = linspace(tspan(1),tspan(end),1001);
-
-    V_actual = sol_func(t_list2);
-   
-
-    figure();
-    for m = 1:4
-        subplot(4,1,m);
-        hold on
-        plot(t_list2,V_actual(:,m),'k','linewidth',2);
-        plot(t_list,X_list_adaptive(:,m),'ro','markerfacecolor','r','markersize',3);
-
-    end
+    % error_temp = 1e-12;
+    % [t_list,X_list_adaptive,~, ~, ~] = ...
+    %     explicit_RK_variable_step_integration(rate_func,t_span,V0, ...
+    %     h_ref,DormandPrince,p,error_temp,growth_limit);
+    % 
+    % t_list2 = linspace(t_span(1),t_span(end),1001);
+    % 
+    % V_actual = sol_func(t_list2);
+    % 
+    % figure();
+    % for m = 1:4
+    %     subplot(4,1,m);
+    %     hold on
+    %     plot(t_list2,V_actual(:,m),'k','linewidth',2);
+    %     plot(t_list,X_list_adaptive(:,m),'ro','markerfacecolor','r','markersize',3);
+    % 
+    % end
 
 
     % For a single desired error threshold, plot the position and velocity 
@@ -138,30 +138,34 @@ function run_explicit_variable_RK_step
     % should be on separate axes). Do this with both lines and dots:
     
     error_desired = error_desired_list(15);
-    error_desired_str = int2str(error_desired);
+    error_desired_str = sprintf('%.1e', error_desired);
 
-    [t_list3,X_list_pos,~, ~, ~] = explicit_RK_variable_step_integration ...
-        (rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired,growth_limit);
-    velocity = diff(X_list_pos);
-    velocity(end) = [];
+    [t_list3,X_list_single_error_thres,~, ~, ~] = explicit_RK_variable_step_integration ...
+        (rate_func,t_span,V0,h_ref,DormandPrince,p,error_desired,growth_limit);
 
     figure();
     subplot(2,1,1);
-    plot(t_list3, X_list_pos(:,1), 'ro-');
+    plot(t_list3, X_list_single_error_thres(:,1), 'ro-');
+    hold on;
+    plot(X_list_single_error_thres(:,2), 'bo-');
 
     set(gca,'TickLabelInterpreter','latex');
-    title(['Position as a Function of Time, error threshold = ' error_desired_str], ...
+    title(['Position vs. Time, error threshold = ' error_desired_str], ...
         'Interpreter', 'latex', 'FontSize', 15);
     ylabel('Position (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
+    legend('$x$ position', '$y$ position', 'Interpreter', 'latex');
 
     subplot(2,1,2);
-    plot(t_list3, velocity(:,1), 'bo-');
-
+    plot(t_list3, X_list_single_error_thres(:,2), 'ro-');
+    hold on;
+    plot(X_list_single_error_thres(:,3), 'bo-');
+    
     set(gca,'TickLabelInterpreter','latex');
     title(['Velocity as a Function of Time, error threshold = ' error_desired_str], ...
         'Interpreter', 'latex', 'FontSize', 15);
     ylabel('Velocity (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
+    legend('$x$ velocity', '$y$ velocity', 'Interpreter', 'latex');
 
 end
