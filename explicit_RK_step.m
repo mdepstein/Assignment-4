@@ -18,7 +18,7 @@
 %   rate_func_in when computing the next step
 function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
     a = BT_struct.A;
-    b = BT_struct.B;
+    b = BT_struct.B(1,:);
     c = BT_struct.C;
     num_evals = 0;
     XB = zeros(size(XA));
@@ -26,6 +26,7 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
     k = zeros(length(XA),length(b));
    
     k(:,1) = rate_func_in(t,XA);
+    num_evals = num_evals+1;
     
     for i = 2:length(b)
         j = i-1;        

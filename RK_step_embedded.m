@@ -27,6 +27,7 @@ function[XB1,XB2,num_evals]=RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
     k = zeros(length(XA),length(b1));
    
     k(:,1) = rate_func_in(t,XA);
+    num_evals = num_evals+1;
 
     
     for i = 2:length(b1)

@@ -31,7 +31,8 @@ function run_explicit_variable_RK_step
         9017/3168,-355/33, 46732/5247, 49/176,-5103/18656, 0,0;...
         35/384, 0, 500/1113, 125/192,-2187/6784, 11/84,0];
 
-    h_avg = zeros(size(error_desired_list));
+    h_avg_variable = zeros(size(error_desired_list));
+    h_avg_fixed = zeros(size(error_desired_list));
     h_list = logspace(-2, 0, length(error_desired_list));
     num_evals_adaptive = zeros(size(error_desired_list));
     step_fail_rate_adaptive = zeros(size(error_desired_list));
@@ -44,21 +45,21 @@ function run_explicit_variable_RK_step
     % iterate through desired error for adaptive step size integrator
     for i = 1:length(error_desired_list)
 
-        [~,X_list_adaptive,h_avg(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
+        [~,X_list_adaptive,h_avg_variable(i), num_evals_adaptive(i), step_fail_rate_adaptive(i)] = ...
             explicit_RK_variable_step_integration(rate_func,t_span,V0, ...
             h_ref,DormandPrince,p,error_desired_list(i),growth_limit);
         V_actual = sol_func(t_span(end));
         V_actual = V_actual(:);
-        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:) - V_actual);
+        global_truncation_adaptive(i) =  norm(X_list_adaptive(end,:)' - V_actual);
     end
     
     % iterate through step sizes for fixed step size integrator
     for j = 1:length(h_list)
-        [~,X_list_fixed,~, num_evals_fixed(j)] = explicit_RK_fixed_step_integration ...
+        [~,X_list_fixed,h_avg_fixed(j), num_evals_fixed(j)] = explicit_RK_fixed_step_integration ...
             (rate_func,t_span,V0,h_list(j),DormandPrince, @explicit_RK_step);
         V_actual = sol_func(t_span(end));
         V_actual = V_actual(:);
-        global_truncation_fixed(j) =  norm(X_list_fixed(end,:) - V_actual);
+        global_truncation_fixed(j) =  norm(X_list_fixed(end,:)' - V_actual);
     end
 
     % On the same axes, plot the global truncation error as a function of the
@@ -67,11 +68,11 @@ function run_explicit_variable_RK_step
     
     figure();
     % adaptive step size
-    loglog(h_avg, global_truncation_adaptive, 'r--');
+    loglog(h_avg_variable, global_truncation_adaptive, 'r--');
     hold on;
     
     % fixed step size
-    loglog(h_list, global_truncation_fixed, 'b-');
+    loglog(h_avg_fixed, global_truncation_fixed, 'b-');
     
     legend("Adaptive Step Size", "Fixed Step Size", ...
         'FontSize', 15, 'Interpreter', 'Latex');
@@ -105,7 +106,7 @@ function run_explicit_variable_RK_step
     % Plot the failure rate as a function of the average step size, using
     % a log scale for the horizontal axis.
     figure();
-    semilogx(h_avg, step_fail_rate_adaptive, 'ro-');
+    semilogx(h_avg_variable, step_fail_rate_adaptive, 'ro-');
 
     set(gca,'TickLabelInterpreter','latex');
     title(['Step Failure Rate vs. Average Step Size ' ...
@@ -147,25 +148,55 @@ function run_explicit_variable_RK_step
     subplot(2,1,1);
     plot(t_list3, X_list_single_error_thres(:,1), 'ro-');
     hold on;
-    plot(X_list_single_error_thres(:,2), 'bo-');
+    plot(t_list3, X_list_single_error_thres(:,2), 'bo-');
 
     set(gca,'TickLabelInterpreter','latex');
     title(['Position vs. Time, error threshold = ' error_desired_str], ...
         'Interpreter', 'latex', 'FontSize', 15);
     ylabel('Position (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
-    legend('$x$ position', '$y$ position', 'Interpreter', 'latex');
+    legend('$x$-position', '$y$-position', ...
+        'Interpreter', 'latex', 'Location', 'best');
+    hold off;
 
     subplot(2,1,2);
-    plot(t_list3, X_list_single_error_thres(:,2), 'ro-');
+    plot(t_list3, X_list_single_error_thres(:,3), 'ro-');
     hold on;
-    plot(X_list_single_error_thres(:,3), 'bo-');
+    plot(t_list3, X_list_single_error_thres(:,4), 'bo-');
     
     set(gca,'TickLabelInterpreter','latex');
     title(['Velocity as a Function of Time, error threshold = ' error_desired_str], ...
         'Interpreter', 'latex', 'FontSize', 15);
     ylabel('Velocity (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
-    legend('$x$ velocity', '$y$ velocity', 'Interpreter', 'latex');
+    legend('$x$-velocity', '$y$-velocity', ...
+        'Interpreter', 'latex', 'Location', 'best');
+    hold off;
+
+
+    % For a single desired error threshold, generate a scatter plot of the 
+    % step size as a function of the distance between the planet and the
+    % sun, r = x2 +y2. Note: you can extract the list of step sizes by just 
+    % taking the difference between adjacent times
+    
+    sun_dist = zeros(length(X_list_single_error_thres)-1, 1);
+
+    for k = 1:length(X_list_single_error_thres)-1
+        x = X_list_single_error_thres(k,1);
+        y = X_list_single_error_thres(k,2);
+        sun_dist(k) = sqrt(x^2+y^2);
+    end
+    
+    step_sizes = diff(t_list3);
+    
+    figure();
+    scatter(sun_dist, step_sizes');
+
+    set(gca,'TickLabelInterpreter','latex');
+    title(['Adaptive Step Size vs. Distance from the Sun, ' ...
+        'error threshold = ' error_desired_str], ...
+        'Interpreter', 'latex', 'FontSize', 15);
+    ylabel('Step Size $h$ (-)', 'Interpreter', 'latex','FontSize',15);
+    xlabel('Distance from the Sun (-)', 'Interpreter', 'latex', 'FontSize',15);
 
 end

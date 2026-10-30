@@ -31,8 +31,13 @@ function [XB, num_evals, h_next, redo] = explicit_RK_variable_step...
 
     error_current = norm(XB1-XB2);
     redo = error_current > error_desired;
-
-    h_next = min(0.9*(error_desired/error_current)^(1/p), growth_limit)*h;
+    
+    if error_current == 0
+        h_next = growth_limit*h;
+    else
+        h_next = min(0.9*(error_desired/error_current)^(1/p), growth_limit)*h;
+    end
+    
     XB = XB1;
     
 end
