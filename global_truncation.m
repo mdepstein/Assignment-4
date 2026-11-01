@@ -1,7 +1,7 @@
 function global_truncation
     orbit_params = define_orbit_params();
     BT_struct_var = butcher_tableau_struct_var_step();
-    BT_struct_explicit = butcher_tableau_struct_explicit();
+    BT_struct_explicit = reshape(butcher_tableau_struct_explicit(), 1, []);
     x0 = 8;
     y0 = 0;
     dxdt0 = 0;
@@ -17,7 +17,7 @@ function global_truncation
     X0=V0
     color = ["blue","red","green"];
     BT_struct_var_names = ["DormandPrince", "Fehlberg", "FehlbergRK1", "HeunEuler", "Bogacki"];
-    BT_struct_explicit_names = ["Forward Euler", "Midpoint Method", "Runga Kutta"];
+    BT_struct_explicit_names = ["Ralston's", "SSPRK3", "RK4"];
 
     for i = 1:3
         for j = 1:length(h_list)
@@ -26,17 +26,21 @@ function global_truncation
             [t_list,X_list,h_avg, num_evals] = ...
                 explicit_RK_fixed_step_integration_global( ...
                 @gravity_rate_func,t_span,X0,h_ref, ...
-                BT_struct_explicit(i));
+                BT_struct_explicit(1,i));
             V_actual = compute_planetary_motion(t_list(end),V0,orbit_params);
+            V_actual = V_actual(:);
+            X_final = X_list(:,end);
 
             % size(X_list)
             % size(V_actual)
-            global_truncation(i, j) = norm(X_list(:, end) - V_actual, 2);
+            global_truncation(i, j) = norm(X_final - V_actual, 2);
         end
     end
 
+    
     figure;
     hold on;
+    set(gca,'XScale', 'log', 'YScale', 'log')
 
     for k = 1:3
         loglog(h_list, global_truncation(k, :), ...
@@ -49,9 +53,9 @@ function global_truncation
     p
 
 
-    l = legend("Forward Euler", "Forward Euler Fit Line", ...
-    "Midpoint Method", "Midpoint Method Fit Line", "Runga Kutta", ...
-    "Runga Kutta Fit Line", 'FontSize', 10, ...
+    l = legend("Ralston's Method", "Ralston's Fit Line", ...
+    "SSPRK3", "SSPRK3 Fit Line", "RK4", ...
+    "RK4 Fit Line", 'FontSize', 10, ...
     'Interpreter', 'Latex', 'Location', 'best');
 
     set(gca,'TickLabelInterpreter','latex');
@@ -59,4 +63,7 @@ function global_truncation
         'Interpreter', 'latex', 'FontSize', 15);
     xlabel('Step Size $h_{ref}$ (-)', 'Interpreter', 'latex');
     ylabel('Global Truncation (-)', 'Interpreter', 'latex');
+
+    myfig = gca();
+    exportgraphics(myfig , 'global_truncation.png', 'Resolution', 600);
 end

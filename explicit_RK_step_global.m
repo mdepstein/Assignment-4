@@ -32,7 +32,7 @@ function [XB, num_evals] = explicit_RK_step_global(rate_func_in,t,XA,h,BT_struct
         if i ==1
             X_stage = XA;
         else
-            X_stage = XA+h*a(i,1:j)*k(1:j)';
+            X_stage = XA + h*(a(i,1:j)*k(1:j,:))';
         end
         k(i,:) =  rate_func_in(t + c(i)*h,X_stage, orbit_params)';
         num_evals = num_evals + 1;
