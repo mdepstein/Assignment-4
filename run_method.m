@@ -35,7 +35,7 @@ for i = 1:3
     nexttile(1)
     [t_list,X_list,h_avg, num_evals] = ...
         explicit_RK_fixed_step_integration(wrap_gravity_rate_func,t_span,X0,h_ref, BT_struct_explicit(i), @explicit_RK_step);
-    plot(t_list, X_list(1,:), 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
+    plot(t_list, X_list(:,1), 'Marker', 'o','Color',color(i),'MarkerSize',2,'MarkerFaceColor',color(i));
     xlabel("Time (-)",'FontSize',15)
         ylabel("$x(t) (-)$",'FontSize',15)
         axis([t_span(1) t_span(2) -5 9])
@@ -44,7 +44,7 @@ for i = 1:3
 
     hold on
     nexttile(2)
-    plot(t_list, X_list(2,:),'Marker', 'o','Color',color(i), 'MarkerSize',2,'MarkerFaceColor',color(i));
+    plot(t_list, X_list(:,2),'Marker', 'o','Color',color(i), 'MarkerSize',2,'MarkerFaceColor',color(i));
 
     xlabel("Time (-)",'FontSize',15)
         ylabel("$y(t) (-)$",'FontSize',15)
