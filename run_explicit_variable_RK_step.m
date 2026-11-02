@@ -151,14 +151,18 @@ function run_explicit_variable_RK_step
     % Plot the failure rate as a function of the average step size, using
     % a log scale for the horizontal axis.
     figure();
-    semilogx(h_avg_variable, step_fail_rate_adaptive, ...
+    loglog(h_avg_variable, step_fail_rate_adaptive, ...
         'ro', 'MarkerFaceColor', 'auto');
 
     set(gca,'TickLabelInterpreter','latex');
     title('Step Failure Rate vs. Average Step Size ', 'Interpreter', 'latex', 'FontSize', 20);
     ylabel('Step Failure Rate (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Average Step Size $h$ (-)', 'Interpreter', 'latex', 'FontSize',15);
-    xticks(logspace(-1,1,3));
+    set(gca, 'Xscale', 'log')    
+    set(gca, 'Yscale', 'log')
+
+
+    xlim([1e-1, 2.5])
 
     % For a single desired error threshold, plot the position and velocity 
     % as a function of time (position vs. time and velocity vs. time 
