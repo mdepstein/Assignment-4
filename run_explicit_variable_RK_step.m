@@ -171,41 +171,60 @@ function run_explicit_variable_RK_step
         (rate_func,t_span,V0,h_ref,DormandPrince,p,error_desired,growth_limit);
 
     figure();
+    sgtitle({'Visualization of Time-Step Clustering for Adaptive Step Sizes', ...
+        ['Error Threshold = ' error_desired_str]}, ...
+        'FontSize', 20, 'Interpreter', 'latex');
+
     subplot(2,1,1);
+
     plot(t_list3, X_list_single_error_thres(:,1), ...
         'ro-','markerfacecolor','k','markeredgecolor','k','markersize',2);
-    hold on;
-    plot(t_list3, X_list_single_error_thres(:,2), ...
-        'bo-','markerfacecolor','k','markeredgecolor','k','markersize',2);
-
-    set(gca,'TickLabelInterpreter','latex');
-    title(['Position vs. Time, error threshold = ' error_desired_str], ...
-        'Interpreter', 'latex', 'FontSize', 20);
-    ylabel('Position (-)', 'Interpreter', 'latex','FontSize',15);
+    title('$x$-position over time', ...
+        'Interpreter', 'latex', 'FontSize', 15);
+    ylabel('$x$-position (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
-    legend('$x$-position', '$y$-position', ...
-        'Interpreter', 'latex', 'Location', 'best');
-    hold off;
 
     subplot(2,1,2);
     plot(t_list3, X_list_single_error_thres(:,3), ...
         'ro-','markerfacecolor','k','markeredgecolor','k','markersize',2);
-    hold on;
-    plot(t_list3, X_list_single_error_thres(:,4), ...
-        'bo-','markerfacecolor','k','markeredgecolor','k','markersize',2);
     
     set(gca,'TickLabelInterpreter','latex');
-    title('Velocity as a Function of Time', ...
-        'Interpreter', 'latex', 'FontSize', 20);
-    subtitle(['Error Threshold = ' error_desired_str], 'FontSize', 15);
-    ylabel('Velocity (-)', 'Interpreter', 'latex','FontSize',15);
+    title('$y$-position over time', ...
+        'Interpreter', 'latex', 'FontSize', 15);
+    ylabel('$y$-position (-)', 'Interpreter', 'latex','FontSize',15);
     xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
-    legend('$x$-velocity', '$y$-velocity', ...
-        'Interpreter', 'latex', 'Location', 'best');
+    hold off;
+    
+    figure;
+    sgtitle({'Visualization of Time-Step Clustering for Adaptive Step Sizes', ...
+        ['Error Threshold = ' error_desired_str]}, ...
+        'FontSize', 20, 'Interpreter', 'latex');
+    subplot(2,1,1);
+    
+    plot(t_list3, X_list_single_error_thres(:,2), ...
+        'bo-','markerfacecolor','k','markeredgecolor','k','markersize',2);
+    title('$x$-velocity over Time', ...
+        'Interpreter', 'latex', 'FontSize', 15);   
+    ylabel('$x$-velocity (-)', 'Interpreter', 'latex','FontSize',15);
+    xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
+
+    subplot(2,1,2);
+    
+    plot(t_list3, X_list_single_error_thres(:,4), ...
+        'bo-','markerfacecolor','k','markeredgecolor','k','markersize',2);
+    title('$y$-velocity Over Time', 'FontSize', 15)
+
+    set(gca,'TickLabelInterpreter','latex');
+
+    title('$y$-velocity over Time', ...
+        'Interpreter', 'latex', 'FontSize', 15);
+
+    ylabel('$y$-velocity (-)', 'Interpreter', 'latex','FontSize',15);
+    xlabel('Time (-)', 'Interpreter', 'latex', 'FontSize',15);
     hold off;
 
     % try 2
-
+%%
     % plot positions
     figure();
     sgtitle({'Visualization of Time-Step Clustering for Adaptive Step Sizes', ...
